@@ -12,6 +12,9 @@ public:
     static QString getLastSerialPort() { return QSettings().value("lastSerialPort", "").toString(); }
     static void setLastSerialPort(QString port) { QSettings().setValue("lastSerialPort", port); }
 
+    static QString getLastRadioPort() { return QSettings().value("lastRadioPort", "").toString(); }
+    static void setLastRadioPort(QString port) { QSettings().setValue("lastRadioPort", port); }
+
     static QString getLastMidiIn() { return QSettings().value("lastMidiIn", "").toString(); }
     static void setLastMidiIn(QString port) { QSettings().setValue("lastMidiIn", port); }
 

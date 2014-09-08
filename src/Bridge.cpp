@@ -73,12 +73,13 @@ Bridge::Bridge() :
         midiIn(NULL),
         midiOut(NULL),
         serial(NULL),
+        radioType(""),
         latency(NULL),
         attachTime(QTime::currentTime())
 {
 }
 
-void Bridge::attach(QString serialName, PortSettings serialSettings, int midiInPort, int midiOutPort, QThread *workerThread)
+void Bridge::attach(QString serialName, PortSettings serialSettings, int midiInPort, int midiOutPort, int radioPortType, QThread *workerThread)
 {
     this->moveToThread(workerThread);
     if(serialName.length() && serialName != TEXT_NOT_CONNECTED) {
@@ -128,6 +129,8 @@ void Bridge::attach(QString serialName, PortSettings serialSettings, int midiInP
     {
         displayMessage(QString("Failed to open MIDI in port: %1").arg(QString::fromStdString(e.getMessage())));
     }
+
+    displayMessage(QString("Pending Implementation of Radio-Port-Type on attach"));
 }
 
 Bridge::~Bridge()
@@ -144,10 +147,17 @@ Bridge::~Bridge()
 void Bridge::onMidiIn(double timeStamp, QByteArray message)
 {
     QString description = describeMIDI(message);
-    emit debugMessage(applyTimeStamp(QString("MIDI In: %1").arg(description)));
+
+    QString translatedmessage = translateMIDItoSerialCommand(message);
+
+    QByteArray ba = translatedmessage.toLocal8Bit();
+    const char *translatedmessagetosend = ba.data();
+
+    emit debugMessage(applyTimeStamp(QString("MIDI In: %1").arg((QString) translatedmessage)));
     emit midiReceived();
-    if(serial && serial->isOpen()) {
-        serial->write(message);
+    if(serial && serial->isOpen()) {        
+          serial->write(translatedmessagetosend);
+//          serial->write(message);
         emit serialTraffic();
     }
 }
@@ -301,6 +311,36 @@ QString Bridge::describeMIDI(QByteArray &buf)
       qdesc = qdesc.arg((int) buf[i++]);
     }
     return qdesc;
+}
+
+/*
+ * Translate the MIDI message buffer to a Serial Device Command
+ *
+ */
+QString Bridge::translateMIDItoSerialCommand(QByteArray &buf)
+{
+//    uint8_t msg = buf[0];
+//    uint8_t tag = msg & TAG_MASK;
+//    uint8_t channel = msg & CHANNEL_MASK;
+//    const char *desc= 0;
+
+    int controlnumber = buf[1];
+    int controlvalue = buf[2];
+    emit displayMessage(applyTimeStamp(QString("Buffer 1 is: %1").arg((int) buf[1])));
+    emit displayMessage(applyTimeStamp(QString("Buffer 2 is: %1").arg((int) buf[2])));
+
+    QString translatedcommand;
+
+    // Work out what we have
+        if (controlnumber == 9 && controlvalue > 64 ) {
+                    translatedcommand = "ZZSB;";
+        }
+        if (controlnumber == 9 && controlvalue < 64) {
+                    translatedcommand = "ZZSA;";
+        }
+
+    // Format the output and return
+    return translatedcommand;
 }
 
 QString Bridge::applyTimeStamp(QString message)

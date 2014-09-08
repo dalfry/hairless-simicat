@@ -28,7 +28,7 @@ class Bridge : public QObject
     Q_OBJECT
 public:
     explicit Bridge();
-    void attach(QString serialName, PortSettings serialSettings, int midiInPort, int midiOutPort, QThread *workerThread);
+    void attach(QString serialName, PortSettings serialSettings, int midiInPort, int midiOutPort, int radioType, QThread *workerThread);
 
     // Destroying an existing Bridge will cleanup state & release all ports
     ~Bridge();
@@ -53,6 +53,7 @@ private:
 
     QString applyTimeStamp(QString message);
     QString describeMIDI(QByteArray &buf);
+    QString translateMIDItoSerialCommand(QByteArray &buf);
 
     bool bufferStartsWith(uint8_t byte) { return this->msg_data.length() && (uint8_t)msg_data[0] == byte; }
 
@@ -64,6 +65,7 @@ private:
     int midiInPort;
     int midiOutPort;
     QextSerialPort *serial;
+    QString radioType;
     PortLatency *latency;
     QTime attachTime;
 

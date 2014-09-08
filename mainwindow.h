@@ -38,6 +38,7 @@ private:
 
     void refresh();
     void refreshSerial();
+    void refreshRadio();
     void refreshMidiIn();
     void refreshMidiOut();
     void refreshMidi(QComboBox *combo, RtMidi *midi);
@@ -50,6 +51,7 @@ private slots:
     void refreshDebugList();
     void showPreferences();
     void showAboutBox();
+    void on_cmbSerial_activated(int index);
 };
 
 #endif // MAINWINDOW_H

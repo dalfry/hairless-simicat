@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     // Fixed width, minimum height
     this->setMinimumSize(this->size());
-    this->setMaximumSize(this->size().width(), 2000);
+    this->setMaximumSize(this->size().width(), 3000);
 #ifdef Q_OS_LINUX
     this->setWindowIcon(QIcon(":/images/images/icon48.png"));
 #endif
@@ -37,6 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->cmbMidiIn->installEventFilter(this);
     ui->cmbMidiOut->installEventFilter(this);
     ui->cmbSerial->installEventFilter(this);
+    ui->cmbRadio->installEventFilter(this);
 
     // Load initial state
     this->workerThread = new QThread();
@@ -47,6 +48,7 @@ MainWindow::MainWindow(QWidget *parent) :
     selectIfAvailable(ui->cmbMidiIn, Settings::getLastMidiIn());
     selectIfAvailable(ui->cmbMidiOut, Settings::getLastMidiOut());
     selectIfAvailable(ui->cmbSerial, Settings::getLastSerialPort());
+    selectIfAvailable(ui->cmbRadio, Settings::getLastRadioPort());
 
     // Set up timer for the display list
     debugListTimer.setSingleShot(true);
@@ -56,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->cmbMidiIn, SIGNAL(currentIndexChanged(int)), SLOT(onValueChanged()));
     connect(ui->cmbMidiOut, SIGNAL(currentIndexChanged(int)), SLOT(onValueChanged()));
     connect(ui->cmbSerial, SIGNAL(currentIndexChanged(int)), SLOT(onValueChanged()));
+    connect(ui->cmbRadio, SIGNAL(currentIndexChanged(int)), SLOT(onValueChanged()));
     connect(ui->chk_on, SIGNAL(clicked()), SLOT(onValueChanged()));
     connect(ui->chk_debug, SIGNAL(clicked(bool)), SLOT(onDebugClicked(bool)));
     connect(&debugListTimer, SIGNAL(timeout()), SLOT(refreshDebugList()));
@@ -111,6 +114,9 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event) {
         else if (object == ui->cmbSerial) {
             refreshSerial();
         }
+        else if (object == ui->cmbRadio) {
+            refreshRadio();
+        }
     }
     return false;
 }
@@ -120,6 +126,7 @@ void MainWindow::refresh()
     refreshSerial();
     refreshMidiIn();
     refreshMidiOut();
+    refreshRadio();
 }
 
 void MainWindow::refreshMidiIn()
@@ -178,6 +185,13 @@ void MainWindow::refreshSerial()
     }
 }
 
+void MainWindow::refreshRadio()
+{
+    QString currentRadio = ui->cmbRadio->currentText();
+    ui->cmbRadio->clear();
+    ui->cmbRadio->addItem("Test Label");
+}
+
 void MainWindow::onDebugClicked(bool value)
 {
     Settings::setDebug(value);
@@ -194,15 +208,18 @@ void MainWindow::onValueChanged()
     Settings::setLastMidiIn(ui->cmbMidiIn->currentText());
     Settings::setLastMidiOut(ui->cmbMidiOut->currentText());
     Settings::setLastSerialPort(ui->cmbSerial->currentText());
+    Settings::setLastRadioPort(ui->cmbRadio->currentText());
     if(!ui->chk_on->isChecked()
             || ( ui->cmbSerial->currentIndex() == 0
                     && ui->cmbMidiIn->currentIndex() == 0
-                    && ui->cmbMidiOut->currentIndex() == 0 )) {
+                    && ui->cmbMidiOut->currentIndex() == 0
+                    && ui->cmbRadio->currentIndex() == 0 )) {
         return;
     }
     ui->lst_debug->clear();
     int midiIn =ui->cmbMidiIn->currentIndex()-1;
     int midiOut = ui->cmbMidiOut->currentIndex()-1;
+    int radioType = ui->cmbRadio->currentIndex()-1;
     ui->lst_debug->addItem("Starting MIDI<->Serial Bridge...");
     bridge = new Bridge();
     connect(bridge, SIGNAL(debugMessage(QString)), SLOT(onDebugMessage(QString)));
@@ -210,7 +227,7 @@ void MainWindow::onValueChanged()
     connect(bridge, SIGNAL(midiReceived()), ui->led_midiin, SLOT(blinkOn()));
     connect(bridge, SIGNAL(midiSent()), ui->led_midiout, SLOT(blinkOn()));
     connect(bridge, SIGNAL(serialTraffic()), ui->led_serial, SLOT(blinkOn()));
-    bridge->attach(ui->cmbSerial->itemData(ui->cmbSerial->currentIndex()).toString(), Settings::getPortSettings(), midiIn, midiOut, workerThread);
+    bridge->attach(ui->cmbSerial->itemData(ui->cmbSerial->currentIndex()).toString(), Settings::getPortSettings(), midiIn, midiOut, radioType, workerThread);
 }
 
 void MainWindow::onDisplayMessage(QString message)
@@ -254,3 +271,8 @@ void MainWindow::resizeEvent(QResizeEvent *)
     lst->setGeometry(geo);
 }
 
+
+void MainWindow::on_cmbSerial_activated(int index)
+{
+
+}
