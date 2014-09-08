@@ -1,8 +1,13 @@
-Hairless MIDI<->Serial Bridge is the easiest way to connect serial devices (like Arduinos) to send and receive MIDI signals.
+This utility is a fork of the Hairless-MidiSerial project by projectgus (http://projectgus.github.io)
 
-The project home page is http://projectgus.github.com/hairless-midiserial/
+This utility adds the ability to control Serial devices by using physical MIDI controls. This is a project primarily aimed at Software Defined Radios in the Amateur Radio world but can be used to control any serial device using its specific Serial commands.
 
-Please see that page for information on running and using Hairless Midiserial, and downloadable compiled versions for Windows, OS X and Linux.
+Those serial commands can be mapped to individual channel / notes of the MIDI devices.
+
+This utility is currently only available for Windows. Support for Mac OS and Linux might be added in the future if I can figure out how to cross-compile for those platforms.
+
+Old Instructions left as-is follow now -
+========================================
 
 # Building Hairless Bridge from source
 
