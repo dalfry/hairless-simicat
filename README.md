@@ -1,4 +1,4 @@
-This utility is a fork of the Hairless-MidiSerial project by projectgus (http://projectgus.github.io)
+This utility is a fork of the Hairless-MidiSerial project by projectgus (http://projectgus.github.io/hairless-midiserial/)
 
 This utility adds the ability to control Serial devices by using physical MIDI controls. This is a project primarily aimed at Software Defined Radios in the Amateur Radio world but can be used to control any serial device using its specific Serial commands.
 
