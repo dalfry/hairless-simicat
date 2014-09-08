@@ -6,8 +6,9 @@ Those serial commands can be mapped to individual channel / notes of the MIDI de
 
 This utility is currently only available for Windows. Support for Mac OS and Linux might be added in the future if I can figure out how to cross-compile for those platforms.
 
-Old Instructions left as-is follow now -
-========================================
+
+Old Instructions left as-is -
+===========================
 
 # Building Hairless Bridge from source
 
