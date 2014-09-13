@@ -28,7 +28,7 @@ class Bridge : public QObject
     Q_OBJECT
 public:
     explicit Bridge();
-    void attach(QString serialName, PortSettings serialSettings, int midiInPort, int midiOutPort, int radioType, QThread *workerThread);
+    void attach(QString serialName, QString radioName, PortSettings serialSettings, int midiInPort, int midiOutPort, QThread *workerThread);
 
     // Destroying an existing Bridge will cleanup state & release all ports
     ~Bridge();
@@ -65,7 +65,6 @@ private:
     int midiInPort;
     int midiOutPort;
     QextSerialPort *serial;
-    QString radioType;
     PortLatency *latency;
     QTime attachTime;
 

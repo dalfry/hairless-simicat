@@ -189,7 +189,14 @@ void MainWindow::refreshRadio()
 {
     QString currentRadio = ui->cmbRadio->currentText();
     ui->cmbRadio->clear();
-    ui->cmbRadio->addItem("Test Label");
+    ui->cmbRadio->addItem(TEXT_NOT_CONNECTED,QVariant(TEXT_NOT_CONNECTED));
+    ui->cmbRadio->addItem("Hercules_MP3_LE",QVariant("Hercules_MP3_LE"));
+    ui->cmbRadio->addItem("Traktor_Kontrol_S4",QVariant("Traktor_Kontrol_S4"));
+    ui->cmbRadio->addItem("Numark_Orbit",QVariant("Numark_Orbit"));
+    ui->cmbRadio->addItem("Numark_DJ_2_GO",QVariant("Numark_DJ_2_GO"));
+//    if(currentRadio == label) {
+//        ui->cmbRadio->setCurrentIndex(ui->cmbRadio->count() - 1);
+//    }
 }
 
 void MainWindow::onDebugClicked(bool value)
@@ -221,13 +228,17 @@ void MainWindow::onValueChanged()
     int midiOut = ui->cmbMidiOut->currentIndex()-1;
     int radioType = ui->cmbRadio->currentIndex()-1;
     ui->lst_debug->addItem("Starting MIDI<->Serial Bridge...");
+    ui->lst_debug->addItem(QString("MidiIn Value is %1").arg(midiIn));
+    ui->lst_debug->addItem(QString("MidiOut Value is %1").arg(midiOut));
+    ui->lst_debug->addItem(QString("Radio Value is %1").arg(radioType));
+    ui->lst_debug->addItem(QString("Radio Name is %1").arg(ui->cmbRadio->itemData(ui->cmbRadio->currentIndex()).toString()));
     bridge = new Bridge();
     connect(bridge, SIGNAL(debugMessage(QString)), SLOT(onDebugMessage(QString)));
     connect(bridge, SIGNAL(displayMessage(QString)), SLOT(onDisplayMessage(QString)));
     connect(bridge, SIGNAL(midiReceived()), ui->led_midiin, SLOT(blinkOn()));
     connect(bridge, SIGNAL(midiSent()), ui->led_midiout, SLOT(blinkOn()));
     connect(bridge, SIGNAL(serialTraffic()), ui->led_serial, SLOT(blinkOn()));
-    bridge->attach(ui->cmbSerial->itemData(ui->cmbSerial->currentIndex()).toString(), Settings::getPortSettings(), midiIn, midiOut, radioType, workerThread);
+    bridge->attach(ui->cmbSerial->itemData(ui->cmbSerial->currentIndex()).toString(), ui->cmbRadio->itemData(ui->cmbRadio->currentIndex()).toString(), Settings::getPortSettings(), midiIn, midiOut, workerThread);
 }
 
 void MainWindow::onDisplayMessage(QString message)

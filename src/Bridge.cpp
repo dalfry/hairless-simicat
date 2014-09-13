@@ -73,13 +73,12 @@ Bridge::Bridge() :
         midiIn(NULL),
         midiOut(NULL),
         serial(NULL),
-        radioType(""),
         latency(NULL),
         attachTime(QTime::currentTime())
 {
 }
 
-void Bridge::attach(QString serialName, PortSettings serialSettings, int midiInPort, int midiOutPort, int radioPortType, QThread *workerThread)
+void Bridge::attach(QString serialName, QString radioName, PortSettings serialSettings, int midiInPort, int midiOutPort, QThread *workerThread)
 {
     this->moveToThread(workerThread);
     if(serialName.length() && serialName != TEXT_NOT_CONNECTED) {
@@ -130,7 +129,20 @@ void Bridge::attach(QString serialName, PortSettings serialSettings, int midiInP
         displayMessage(QString("Failed to open MIDI in port: %1").arg(QString::fromStdString(e.getMessage())));
     }
 
-    displayMessage(QString("Pending Implementation of Radio-Port-Type on attach"));
+    try
+    {
+       if(radioName.length() && radioName != TEXT_NOT_CONNECTED) {
+            emit displayMessage(QString("Opening Radio Mapping type %1").arg(radioName));
+            emit displayMessage(QString("Pending Implementation of Radio-Port-Type on attach"));
+        } else {
+            emit displayMessage(QString("Radio Port Type not selected"));
+       }
+     }
+    catch(RtError e)
+    {
+        displayMessage(QString("Failed to map Radio Port Type: %1").arg(QString::fromStdString(e.getMessage())));
+    }
+
 }
 
 Bridge::~Bridge()
